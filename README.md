@@ -14,10 +14,16 @@
 
 ```
 any-docs/
-├─ docs/                          # Markdown 源目录（文件可以用中文命名）
+├─ docs/                          # Markdown 源目录（文件、目录都可以用中文命名）
 │  ├─ index.md                    # 首页
-│  ├─ any/                        # 文档正文，按主题分目录
+│  ├─ any/                        # 调研文档
 │  │  └─ 重庆OPC社区调研.md
+│  ├─ electrician/                # 低压电工考证学习文档
+│  │  └─ low-voltage electrician/ # 目录名同样支持中文/空格，构建时自动转拼音
+│  │     ├─ README.md             # 课程首页（H1 为「低压电工考证学习文档」）
+│  │     └─ 01-Chapter 1-安全生产法律法规/
+│  │        ├─ README.md          # 章节页（H1 会作为侧边栏章节标题）
+│  │        └─ 1.1-安全生产法律法规体系.md
 │  └─ .vitepress/
 │     ├─ config.mts               # 站点配置：base、导航、侧边栏
 │     ├─ url-map.json             # 自动生成的「源文件 → 拼音 URL」映射（需提交）
@@ -54,7 +60,7 @@ npm run docs:dev
 
 ## 新增文档
 
-1. 在 `docs/any/` 下新建 Markdown 文件，**直接用中文命名**，标题写在 `# H1`：
+1. 在 `docs/` 下任意目录新建 Markdown 文件，**直接用中文命名**，标题写在 `# H1`：
 
    ```markdown
    # 成都 AI 社区调研
@@ -68,10 +74,13 @@ npm run docs:dev
 
 **URL 规则：**
 
-- 文件名会由 `prepare.mjs` 转成拼音 slug，例如 `成都AI社区调研.md` → `/any/cheng-du-ai-she-qu-diao-yan`。
+- 文件名和**目录名**都会由 `prepare.mjs` 转成拼音 slug，例如 `成都AI社区调研.md` → `/any/cheng-du-ai-she-qu-diao-yan`，目录 `low-voltage electrician` → `low-voltage-electrician`。
+- **正文链接自动改写**：文档里可以放心写中文文件名的链接——同目录/子目录的相对链接（`](13.1-xxx.md)`、`](01-Chapter 1-xxx/README.md)`）以及绝对源路由（`/any/成都AI社区调研.md`）都会在构建时改写成 slug 路由。
 - 想自定义 URL，编辑 `docs/.vitepress/url-map.json` 中对应条目的 `slug` 字段后重新构建即可。
 - 已登记过的文件会复用原 slug，URL 不会因构建而变动。
 - 如果以后重命名了中文文件名，slug 会重新生成，旧 URL 将失效。
+
+**侧边栏结构：** 按源目录树自动生成。顶层目录作为一组（如 `any` →「调研」、`electrician` →「低压电工考证」）；目录内的 `README.md` 作为该目录的标题与入口，章节可嵌套课时。首页顶部入口按钮指向 `docs/electrician/low-voltage electrician/README.md`，在 `docs/index.md` 的 `hero.actions` 里维护。
 
 ## 发布流程
 

@@ -9,6 +9,9 @@ hero:
     - theme: brand
       text: 重庆 OPC 社区调研
       link: /any/重庆OPC社区调研
+    - theme: alt
+      text: 低压电工考证学习文档
+      link: /electrician/low-voltage electrician/README.md
 
 features:
   - title: 调研报告
