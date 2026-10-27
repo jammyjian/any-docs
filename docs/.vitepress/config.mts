@@ -101,9 +101,9 @@ const sidebar = buildSidebar(allPages.filter((p) => p.key !== 'index.md'))
 
 export default defineConfig({
   lang: 'zh-CN',
-  base: '/any-docs/',
+  base: '/some-docs/',
   srcDir: '.vitepress/src',
-  title: 'any-docs',
+  title: 'some-docs',
   description: '个人调研与文档集合',
   lastUpdated: true,
 

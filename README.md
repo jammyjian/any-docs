@@ -1,9 +1,9 @@
-# any-docs
+# some-docs
 
 调研与文档集合，使用 [VitePress](https://vitepress.dev/) 构建为静态站点，发布在 GitHub Pages。
 
-- 线上地址：<https://jammyjian.github.io/any-docs/>
-- 仓库地址：<https://github.com/jammyjian/any-docs>
+- 线上地址：<https://jammyjian.github.io/some-docs/>
+- 仓库地址：<https://github.com/jammyjian/some-docs>
 
 ## 环境要求
 
@@ -13,7 +13,7 @@
 ## 目录结构
 
 ```
-any-docs/
+some-docs/
 ├─ docs/                          # Markdown 源目录（文件、目录都可以用中文命名）
 │  ├─ index.md                    # 首页
 │  ├─ any/                        # 调研文档
@@ -56,7 +56,7 @@ npm install
 npm run docs:dev
 ```
 
-打开 <http://localhost:5173/any-docs/>。`docs:dev` 会先执行一次预处理，然后启动 VitePress 开发服务器，并监听 `docs/` 下的 Markdown 变更，保存后自动重新预处理。
+打开 <http://localhost:5173/some-docs/>。`docs:dev` 会先执行一次预处理，然后启动 VitePress 开发服务器，并监听 `docs/` 下的 Markdown 变更，保存后自动重新预处理。
 
 ## 新增文档
 
@@ -106,7 +106,7 @@ git push
 # 2. 构建并发布
 npm run docs:publish
 
-# 3. 等待约 1 分钟，访问 https://jammyjian.github.io/any-docs/
+# 3. 等待约 1 分钟，访问 https://jammyjian.github.io/some-docs/
 ```
 
 `npm run docs:publish` 会先执行预处理再构建，把产物强推到 `gh-pages`。注意它**只发布站点，不提交源码**，所以第 1 步不能省略。
@@ -134,12 +134,12 @@ npm run docs:publish
 1. 打开仓库 **Settings → Pages**。
 2. **Source** 选择 `Deploy from a branch`。
 3. **Branch** 选择 `gh-pages`，目录选择 `/ (root)`。
-4. 保存后等待 1–2 分钟，访问 <https://jammyjian.github.io/any-docs/>。
+4. 保存后等待 1–2 分钟，访问 <https://jammyjian.github.io/some-docs/>。
 
 ### 注意事项
 
 - **不要手改 `gh-pages`**：该分支由脚本生成，每次发布都会强推覆盖。
-- **`base` 路径**：`config.mts` 中是 `base: '/any-docs/'`，与仓库名一致。如果重命名仓库或绑定自定义域名，需要同步修改，否则 CSS 和链接会 404。
+- **`base` 路径**：`config.mts` 中是 `base: '/some-docs/'`，与仓库名一致。如果重命名仓库或绑定自定义域名，需要同步修改，否则 CSS 和链接会 404。
 - **最后更新时间**：取源文件的 git 提交时间；未提交的文件退回用文件修改时间，所以先提交再发布更准确。
 - **搜索**：使用 VitePress 内置本地搜索，对英文词（OPC、AI 等）有效，中文分词支持有限。
 - **发布失败**：构建报错或推送失败时脚本会中断，远端保持上一次的版本，修复后重新执行即可。

@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: any-docs
+  name: some-docs
   text: 调研与文档
   tagline: 公开信息调研、资料整理与笔记
   actions:
