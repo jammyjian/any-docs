@@ -89,6 +89,20 @@ export function prepare() {
     newMap[rel] = { slug, title, lastUpdated }
   }
 
+  // 首页（index.md）里以源路径写法引用的链接，改写成 slug 路由，
+  // 这样首页按钮/链接不随中文文件名变动而失效。
+  const srcIndex = path.join(SRC, 'index.md')
+  if (fs.existsSync(srcIndex)) {
+    let content = fs.readFileSync(srcIndex, 'utf8')
+    for (const [key, v] of Object.entries(newMap)) {
+      if (key === 'index.md') continue
+      const dir = path.posix.dirname(key)
+      const srcRoute = `/${dir}/${path.posix.basename(key, '.md')}`
+      content = content.split(srcRoute).join(`/${dir}/${v.slug}`)
+    }
+    fs.writeFileSync(path.join(OUT, 'index.md'), content)
+  }
+
   // 清理已不存在的源文件对应的生成文件
   const valid = new Set(
     Object.entries(newMap).map(([rel, v]) =>

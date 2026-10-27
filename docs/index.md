@@ -8,7 +8,7 @@ hero:
   actions:
     - theme: brand
       text: 重庆 OPC 社区调研
-      link: /any/chongqing-opc-community
+      link: /any/重庆OPC社区调研
 
 features:
   - title: 调研报告
