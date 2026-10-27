@@ -14,15 +14,20 @@
 
 ```
 any-docs/
-├─ docs/                          # VitePress 站点根目录（也是 Markdown 源目录）
+├─ docs/                          # Markdown 源目录（文件可以用中文命名）
 │  ├─ index.md                    # 首页
 │  ├─ any/                        # 文档正文，按主题分目录
-│  │  └─ chongqing-opc-community.md
+│  │  └─ 重庆OPC社区调研.md
 │  └─ .vitepress/
 │     ├─ config.mts               # 站点配置：base、导航、侧边栏
+│     ├─ url-map.json             # 自动生成的「源文件 → 拼音 URL」映射（需提交）
+│     ├─ src/                     # 预处理产物：中文文件名转成拼音名（已忽略）
 │     ├─ cache/                   # 构建缓存（已忽略）
 │     └─ dist/                    # 构建产物（已忽略）
-├─ scripts/publish.sh             # 发布脚本：构建 + 推送 gh-pages
+├─ scripts/
+│  ├─ prepare.mjs                 # 预处理：中文文件名转拼音 slug，登记侧边栏信息
+│  ├─ dev.mjs                     # 本地开发：prepare + vitepress dev + 监听源文件
+│  └─ publish.sh                  # 发布：构建 + 推送 gh-pages
 ├─ package.json
 └─ package-lock.json
 ```
@@ -32,9 +37,10 @@ any-docs/
 | 命令 | 作用 |
 |---|---|
 | `npm install` | 安装依赖 |
-| `npm run docs:dev` | 启动本地开发服务器，支持热更新 |
-| `npm run docs:build` | 构建静态站点到 `docs/.vitepress/dist/` |
-| `npm run docs:preview` | 本地预览构建产物（验证构建结果，而非开发模式） |
+| `npm run docs:prepare` | 执行预处理（中文文件名 → 拼音 slug），生成 `url-map.json` |
+| `npm run docs:dev` | 本地开发服务器，自动预处理并监听源文件变更 |
+| `npm run docs:build` | 预处理 + 构建静态站点到 `docs/.vitepress/dist/` |
+| `npm run docs:preview` | 本地预览构建产物 |
 | `npm run docs:publish` | 构建并发布到 GitHub Pages（见下文） |
 
 ## 本地开发
@@ -44,11 +50,11 @@ npm install
 npm run docs:dev
 ```
 
-打开 <http://localhost:5173/any-docs/>。Markdown 修改会实时热更新。
+打开 <http://localhost:5173/any-docs/>。`docs:dev` 会先执行一次预处理，然后启动 VitePress 开发服务器，并监听 `docs/` 下的 Markdown 变更，保存后自动重新预处理。
 
 ## 新增文档
 
-1. 在 `docs/any/` 下新建 Markdown 文件，文件名用 ASCII 小写加连字符（文件名决定 URL），中文标题写在 `# H1`：
+1. 在 `docs/any/` 下新建 Markdown 文件，**直接用中文命名**，标题写在 `# H1`：
 
    ```markdown
    # 成都 AI 社区调研
@@ -58,22 +64,14 @@ npm run docs:dev
    正文……
    ```
 
-2. 在 `docs/.vitepress/config.mts` 的 `sidebar` 中登记，否则左侧导航里看不到：
+2. 保存。侧边栏标题和 URL **自动生成，无需手工登记**。
 
-   ```ts
-   sidebar: [
-     {
-       text: '调研',
-       items: [
-         { text: '重庆 OPC 社区调研', link: '/any/chongqing-opc-community' },
-         { text: '成都 AI 社区调研', link: '/any/chengdu-ai-community' },
-       ],
-     },
-   ],
-   ```
+**URL 规则：**
 
-3. `npm run docs:dev` 本地确认排版。
-4. 按下面的发布流程提交并上线。
+- 文件名会由 `prepare.mjs` 转成拼音 slug，例如 `成都AI社区调研.md` → `/any/cheng-du-ai-she-qu-diao-yan`。
+- 想自定义 URL，编辑 `docs/.vitepress/url-map.json` 中对应条目的 `slug` 字段后重新构建即可。
+- 已登记过的文件会复用原 slug，URL 不会因构建而变动。
+- 如果以后重命名了中文文件名，slug 会重新生成，旧 URL 将失效。
 
 ## 发布流程
 
@@ -83,7 +81,7 @@ npm run docs:dev
 
 | 分支 | 内容 | 谁维护 |
 |---|---|---|
-| `master` | 源码：Markdown、`config.mts`、`package.json`、脚本 | 手工提交 |
+| `master` | 源码：Markdown、`config.mts`、脚本、`url-map.json` | 手工提交 |
 | `gh-pages` | 构建产物：HTML、JS、CSS、字体 | `scripts/publish.sh` 自动生成，**不要手动修改** |
 
 GitHub Pages 不会执行 VitePress 构建，只能提供静态文件或运行 Jekyll，因此产物必须在本地构建好，再放到 `gh-pages` 分支。产物不放进 `master`，是为了避免每次构建产生的哈希文件名污染源码历史、撑大仓库。
@@ -102,13 +100,15 @@ npm run docs:publish
 # 3. 等待约 1 分钟，访问 https://jammyjian.github.io/any-docs/
 ```
 
-注意：`npm run docs:publish` **只发布站点，不提交源码**，所以第 1 步不能省略。
+`npm run docs:publish` 会先执行预处理再构建，把产物强推到 `gh-pages`。注意它**只发布站点，不提交源码**，所以第 1 步不能省略。
+
+`docs/.vitepress/url-map.json` 由脚本生成，但建议提交到 `master`，让 URL 映射稳定、可追踪；`src/`、`cache/`、`dist/` 均已被 `.gitignore` 忽略。
 
 ### 发布脚本做了什么
 
 `npm run docs:publish` 执行的是 `scripts/publish.sh`（`package.json` 中定义），流程如下：
 
-1. 运行 `npm run docs:build`，产物输出到 `docs/.vitepress/dist/`。
+1. 运行 `npm run docs:build`（即 `prepare.mjs` 预处理 + `vitepress build`），产物输出到 `docs/.vitepress/dist/`。
 2. 检查 `dist/index.html` 是否存在，防止空构建被误发布。
 3. 用 `mktemp -d` 建一个临时目录，把产物复制进去，并写入 `.nojekyll`（让 GitHub Pages 跳过 Jekyll 处理）。
 4. 在临时目录里 `git init -b gh-pages`，把产物提交为**一个全新的单提交**。
@@ -131,6 +131,6 @@ npm run docs:publish
 
 - **不要手改 `gh-pages`**：该分支由脚本生成，每次发布都会强推覆盖。
 - **`base` 路径**：`config.mts` 中是 `base: '/any-docs/'`，与仓库名一致。如果重命名仓库或绑定自定义域名，需要同步修改，否则 CSS 和链接会 404。
-- **最后更新时间**：`lastUpdated` 取自 git 提交记录，未提交的文件不会显示准确时间。
+- **最后更新时间**：取源文件的 git 提交时间；未提交的文件退回用文件修改时间，所以先提交再发布更准确。
 - **搜索**：使用 VitePress 内置本地搜索，对英文词（OPC、AI 等）有效，中文分词支持有限。
 - **发布失败**：构建报错或推送失败时脚本会中断，远端保持上一次的版本，修复后重新执行即可。
